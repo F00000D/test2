@@ -58,6 +58,26 @@
         text-decoration: none;
         color: inherit;
     }
+
+    .search-bar {
+        width: 80%;
+        max-width: 400px;
+        margin: 15px 0;
+    }
+
+    .search-bar input {
+        width: 100%;
+        padding: 10px 14px;
+        font-size: 14px;
+        border: 1px solid #000;
+        border-radius: 20px;
+        outline: none;
+    }
+
+    .search-bar input::placeholder {
+        color: #888;
+    }
+
   </style>
 </head>
 
@@ -75,6 +95,9 @@
 ">
   <h1>食在中原</h1>
   <p>關於中原附近的美食餐廳</p>
+  <div class="search-bar">
+    <input type="text" placeholder="搜尋餐廳或類型…">
+  </div>
   <hr style="width: 80%; height: 2px; background-color: black; border: none; margin: 20px 0;">
   
   <div class="card-area">
