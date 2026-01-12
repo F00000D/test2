@@ -4,7 +4,49 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Vercel Render</title>
+  <style>
+    .card-area {
+        display: flex;
+        gap: 20px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .card {
+        width: 200px;
+        border: 1px solid black;
+        border-radius: 10px;
+        overflow: hidden;
+        text-align: center;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    .card img {
+        width: 100%;
+        display: block;
+    }
+
+    .card h3 {
+        margin: 8px 0;
+    }
+
+    .card p {
+        margin: 0 0 10px 0;
+    }
+
+    a.card-link {
+        text-decoration: none;
+        color: inherit;
+    }
+  </style>
 </head>
+
 <body style="
   display: flex;
   flex-direction: column;
@@ -20,54 +62,40 @@
   <h1>食在中原</h1>
   <p>關於中原附近的美食餐廳</p>
   <hr style="width: 80%; height: 2px; background-color: black; border: none; margin: 20px 0;">
-<div style="
-  display: flex;
-  gap: 20px;
-  margin-top: 20px;
-  flex-wrap: wrap;
-  justify-content: center;
-">
+  
+  <div class="card-area">
+    <a href="noodle.html" class="card-link">
+        <div class="card">
+        <img src="https://via.placeholder.com/200x120">
+        <h3>阿婆麵店</h3>
+        <p>中式料理</p>
+        </div>
+    </a>
 
-  <!-- 卡片 1 -->
-  <div style="
-    width: 200px;
-    border: 1px solid #000;
-    border-radius: 10px;
-    overflow: hidden;
-    text-align: center;
-  ">
-    <img src="https://via.placeholder.com/200x120" style="width: 100%;">
-    <h3 style="margin: 8px 0;">阿婆麵店</h3>
-    <p style="margin: 0 0 8px 0;">中式料理</p>
+    <a href="italy.html" class="card-link">
+        <div class="card">
+        <img src="https://via.placeholder.com/200x120">
+        <h3>義麵坊</h3>
+        <p>義式料理</p>
+        </div>
+    </a>
+
+    <a href="bbq.html" class="card-link">
+        <div class="card">
+        <img src="https://via.placeholder.com/200x120">
+        <h3>炭火燒肉</h3>
+        <p>日式料理</p>
+        </div>
+    </a>
+
+    <a href="drink.html" class="card-link">
+        <div class="card">
+        <img src="https://via.placeholder.com/200x120">
+        <h3>黑糖茶鋪</h3>
+        <p>飲料店</p>
+        </div>
+    </a>
   </div>
-
-  <!-- 卡片 2 -->
-  <div style="
-    width: 200px;
-    border: 1px solid #000;
-    border-radius: 10px;
-    overflow: hidden;
-    text-align: center;
-  ">
-    <img src="https://via.placeholder.com/200x120" style="width: 100%;">
-    <h3 style="margin: 8px 0;">義麵坊</h3>
-    <p style="margin: 0 0 8px 0;">義式料理</p>
-  </div>
-
-  <!-- 卡片 3 -->
-  <div style="
-    width: 200px;
-    border: 1px solid #000;
-    border-radius: 10px;
-    overflow: hidden;
-    text-align: center;
-  ">
-    <img src="https://via.placeholder.com/200x120" style="width: 100%;">
-    <h3 style="margin: 8px 0;">炭火燒肉</h3>
-    <p style="margin: 0 0 8px 0;">日式料理</p>
-  </div>
-
-</div>
 
 </body>
 
