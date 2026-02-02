@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>餐廳詳細資訊</title>
+  <style>
+    body {
+      font-family: Arial;
+      padding: 20px;
+    }
+    img {
+      width: 100%;
+      max-width: 500px;
+      border-radius: 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <button onclick="history.back()">← 回上一頁</button>
+
+  <h1 id="name"></h1>
+  <p id="type"></p>
+  <img id="image">
+  <p id="distance"></p>
+
+  <script>
+    const stores = [
+      {
+        id: 1,
+        name: "慕森",
+        type: "早午餐",
+        lat: 24.95678,
+        lng: 121.24007,
+        image: "https://linnote.com/wp-content/uploads/2024/03/zhongli-musen-brunch-8.webp"
+      },
+      {
+        id: 2,
+        name: "Mint Pasta",
+        type: "義式料理",
+        lat: 24.95734,
+        lng: 121.23624,
+        image: "https://weiyu-life.com/wp-content/uploads/mint-21.jpg"
+      },
+      {
+        id: 3,
+        name: "美焦咖啡",
+        type: "咖啡廳",
+        lat: 24.95583,
+        lng: 121.24129,
+        image: "https://www.masterpon.com/wp-content/uploads/meichiao1.jpg"
+      }
+    ]
+
+    // 取得網址參數 ?id=1
+    const params = new URLSearchParams(window.location.search)
+    const id = Number(params.get("id"))
+
+    const store = stores.find(s => s.id === id)
+
+    if (store) {
+      document.getElementById("name").textContent = store.name
+      document.getElementById("type").textContent = store.type
+      document.getElementById("image").src = store.image
+    }
+  </script>
+
+</body>
+</html>
