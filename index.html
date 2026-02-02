@@ -2,77 +2,188 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>食在中原</title>
+
   <style>
-    body { font-family: Arial; text-align: center; margin: 0; }
-    h1 { color: #ff5722; }
-    input { padding: 10px; width: 250px; border-radius: 20px; }
-    .cards {
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 3rem;
+      color: #ff5722;
+      margin-bottom: -10px;
+    }
+
+    .subtitle {
+      color: #666;
+      margin-bottom: 20px;
+    }
+
+    .search-input {
+      width: 300px;
+      padding: 12px 20px;
+      border-radius: 50px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+
+    .divider {
+      height: 4px;
+      background: #ccc;
+      margin: 20px 0;
+    }
+
+    .card-container {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px,1fr));
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
       gap: 16px;
       padding: 16px;
     }
+
     .card {
-      cursor: pointer;
+      position: relative;
+      background: #fff;
       border-radius: 16px;
-      box-shadow: 0 4px 10px rgba(0,0,0,.1);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      cursor: pointer;
       overflow: hidden;
     }
-    img { width: 100%; height: 150px; object-fit: cover; }
-    .info { padding: 10px; text-align: left; }
+
+    .card img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+    }
+
+    .card-info {
+      padding: 10px;
+      text-align: left;
+    }
+
+    .heart {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 20px;
+      cursor: pointer;
+    }
   </style>
 </head>
 
 <body>
   <h1>食在中原</h1>
-  <p>關於中原附近的美食餐廳</p>
+  <p class="subtitle">關於中原附近的美食餐廳</p>
 
-  <input id="search" placeholder="搜尋餐廳或類型" />
+  <input
+    id="search"
+    class="search-input"
+    placeholder="搜尋餐廳或類型..."
+  />
 
-  <div id="cards" class="cards"></div>
+  <div class="divider"></div>
+
+  <div id="cards" class="card-container"></div>
 
   <script>
-    // ✅ 模擬 API（之後直接換成 fetch(API_URL)）
-    async function fetchStores() {
-      return [
-        { id: 1, name: "慕森", type: "早午餐", image: "https://linnote.com/wp-content/uploads/2024/03/zhongli-musen-brunch-8.webp" },
-        { id: 2, name: "Mint Pasta", type: "義式料理", image: "https://weiyu-life.com/wp-content/uploads/mint-21.jpg" },
-        { id: 3, name: "美焦咖啡", type: "咖啡廳", image: "https://www.masterpon.com/wp-content/uploads/meichiao1.jpg" }
-      ]
+    const stores = [
+      {
+        id: 1,
+        name: "慕森",
+        type: "早午餐",
+        lat: 24.95678,
+        lng: 121.24007,
+        image: "https://linnote.com/wp-content/uploads/2024/03/zhongli-musen-brunch-8.webp",
+        liked: false
+      },
+      {
+        id: 2,
+        name: "Mint Pasta",
+        type: "義式料理",
+        lat: 24.95734,
+        lng: 121.23624,
+        image: "https://weiyu-life.com/wp-content/uploads/mint-21.jpg",
+        liked: false
+      },
+      {
+        id: 3,
+        name: "美焦咖啡",
+        type: "咖啡廳",
+        lat: 24.95583,
+        lng: 121.24129,
+        image: "https://www.masterpon.com/wp-content/uploads/meichiao1.jpg",
+        liked: false
+      }
+    ]
+
+    let userLocation = null
+
+    function getDistance(lat1, lng1, lat2, lng2) {
+      const R = 6371000
+      const toRad = d => d * Math.PI / 180
+      const dLat = toRad(lat2 - lat1)
+      const dLng = toRad(lng2 - lng1)
+      const a =
+        Math.sin(dLat/2)**2 +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+        Math.sin(dLng/2)**2
+      return Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)))
     }
 
-    let stores = []
+    function render() {
+      const keyword = document.getElementById("search").value
+      const container = document.getElementById("cards")
+      container.innerHTML = ""
 
-    function render(list) {
-      const box = document.getElementById("cards")
-      box.innerHTML = ""
-      list.forEach(s => {
-        const card = document.createElement("div")
-        card.className = "card"
-        card.onclick = () => {
-          location.href = `detail.html?id=${s.id}`
-        }
-        card.innerHTML = `
-          <img src="${s.image}">
-          <div class="info">
-            <h3>${s.name}</h3>
-            <p>${s.type}</p>
-          </div>
-        `
-        box.appendChild(card)
+      stores
+        .filter(s => s.name.includes(keyword) || s.type.includes(keyword))
+        .sort((a,b) => b.liked - a.liked)
+        .forEach(store => {
+          const card = document.createElement("div")
+          card.className = "card"
+
+          card.innerHTML = `
+            <div class="heart">${store.liked ? "❤️" : "🤍"}</div>
+            <img src="${store.image}">
+            <div class="card-info">
+              <h3>${store.name}</h3>
+              <p>${store.type}</p>
+              ${store.distance ? `<p>📍 ${store.distance} 公尺</p>` : ""}
+            </div>
+          `
+
+          card.querySelector(".heart").onclick = e => {
+            e.stopPropagation()
+            store.liked = !store.liked
+            render()
+          }
+
+          container.appendChild(card)
+        })
+    }
+
+    navigator.geolocation.getCurrentPosition(pos => {
+      userLocation = {
+        lat: pos.coords.latitude,
+        lng: pos.coords.longitude
+      }
+
+      stores.forEach(s => {
+        s.distance = getDistance(
+          userLocation.lat,
+          userLocation.lng,
+          s.lat,
+          s.lng
+        )
       })
-    }
 
-    document.getElementById("search").addEventListener("input", e => {
-      const k = e.target.value
-      render(stores.filter(s => s.name.includes(k) || s.type.includes(k)))
+      render()
     })
 
-    fetchStores().then(data => {
-      stores = data
-      render(stores)
-    })
+    document.getElementById("search").addEventListener("input", render)
   </script>
 </body>
 </html>
