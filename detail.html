@@ -58,7 +58,7 @@
         image: "https://www.masterpon.com/wp-content/uploads/meichiao1.jpg",
         phone: "0972 402 688",
         price: "$",
-        time: "12:00 - 21:00",
+        time: "12:00 - ",
         orderLink: ""
       }
     ]
@@ -71,11 +71,13 @@
     const store = stores.find(s => s.id === id)
 
     if (store) {
+      document.getElementById("name").textContent = store.name
+      document.getElementById("type").textContent = store.type
+      document.getElementById("image").src = store.image
       document.getElementById("phone").textContent = "📞 電話：" + store.phone
       document.getElementById("price").textContent = "💰 價格區間：" + store.price
       document.getElementById("time").textContent = "⏰ 營業時間：" + store.time
       document.getElementById("order").href = store.orderLink
-
     }
   </script>
 
