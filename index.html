@@ -146,8 +146,9 @@
           card.className = "card"
 
           card.onclick = () => {
-            window.location.href = "detail.html"
+            window.location.href = `detail.html?id=${store.id}`
           }
+
 
           card.innerHTML = `
             <div class="heart">${store.liked ? "❤️" : "🤍"}</div>
