@@ -145,6 +145,10 @@
           const card = document.createElement("div")
           card.className = "card"
 
+          card.onclick = () => {
+            window.location.href = "detail.html"
+          }
+
           card.innerHTML = `
             <div class="heart">${store.liked ? "❤️" : "🤍"}</div>
             <img src="${store.image}">
