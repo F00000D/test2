@@ -7,7 +7,7 @@ fetch("http://localhost:3000/stores")
     render()
   })
   .catch(err => {
-    console.error("���鞈����憭望��", err)
+    console.error("開啟失敗", err)
   })
 
 function render() {
