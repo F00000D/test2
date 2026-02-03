@@ -30,56 +30,21 @@
 
 
   <script>
-    const stores = [
-      {
-        id: 1,
-        name: "慕森",
-        type: "早午餐",
-        image: "https://linnote.com/wp-content/uploads/2024/03/zhongli-musen-brunch-8.webp",
-        phone: "03-123-4567",
-        price: "$$",
-        time: "08:00 - 16:00",
-        orderLink: "https://www.foodpanda.com.tw"
-      },
-      {
-        id: 2,
-        name: "Mint Pasta",
-        type: "義式料理",
-        image: "https://weiyu-life.com/wp-content/uploads/mint-21.jpg",
-        phone: "03 436 9920",
-        price: "$",
-        time: "11:00 - 20:30",
-        orderLink: ""
-      },
-      {
-        id: 3,
-        name: "美焦咖啡",
-        type: "咖啡廳",
-        image: "https://www.masterpon.com/wp-content/uploads/meichiao1.jpg",
-        phone: "0972 402 688",
-        price: "$",
-        time: "12:00 - ",
-        orderLink: ""
-      }
-    ]
+  const params = new URLSearchParams(window.location.search)
+  const id = params.get("id")
 
-    // 👉 讀取網址上的 ?id=?
-    const params = new URLSearchParams(window.location.search)
-    const id = Number(params.get("id"))
-
-    // 👉 找到對的餐廳
-    const store = stores.find(s => s.id === id)
-
-    if (store) {
+  fetch(`http://localhost:3000/stores/${id}`)
+    .then(res => res.json())
+    .then(store => {
       document.getElementById("name").textContent = store.name
       document.getElementById("type").textContent = store.type
       document.getElementById("image").src = store.image
-      document.getElementById("phone").textContent = "📞 電話：" + store.phone
-      document.getElementById("price").textContent = "💰 價格區間：" + store.price
-      document.getElementById("time").textContent = "⏰ 營業時間：" + store.time
+      document.getElementById("phone").textContent = store.phone
+      document.getElementById("price").textContent = store.price
+      document.getElementById("time").textContent = store.time
       document.getElementById("order").href = store.orderLink
-    }
-  </script>
+    })
+</script>
 
 </body>
 </html>
