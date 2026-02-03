@@ -1,5 +1,4 @@
 let stores = []
-let likedStores = JSON.parse(localStorage.getItem("likedStores")) || []
 
 fetch("http://localhost:3000/stores")
   .then(res => res.json())
@@ -8,7 +7,7 @@ fetch("http://localhost:3000/stores")
     render()
   })
   .catch(err => {
-    console.error("抓資料失敗", err)
+    console.error("���鞈����憭望��", err)
   })
 
 function render() {
@@ -26,10 +25,7 @@ function render() {
         window.location.href = `detail.html?id=${store.id}`
       }
 
-      const isLiked = likedStores.includes(store.id)
-
       card.innerHTML = `
-        <div class="heart">${isLiked ? "❤️" : "🤍"}</div>
         <img src="${store.image}">
         <div class="card-info">
           <h3>${store.name}</h3>
@@ -37,18 +33,6 @@ function render() {
         </div>
       `
 
-    card.querySelector(".heart").onclick = e => {
-      e.stopPropagation() // 防止點心跳到 detail page
-
-      if (likedStores.includes(store.id)) {
-        likedStores = likedStores.filter(id => id !== store.id)
-      } else {
-        likedStores.push(store.id)
-      }
-
-      localStorage.setItem("likedStores", JSON.stringify(likedStores))
-      render()
-    }
       container.appendChild(card)
     })
 }
