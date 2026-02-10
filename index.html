@@ -88,110 +88,84 @@
   <div class="divider"></div>
 
   <div id="cards" class="card-container"></div>
-
-<!-- 
+ 
   <script>
-    const stores = [
-      {
-        id: 1,
-        name: "慕森",
-        type: "早午餐",
-        lat: 24.95678,
-        lng: 121.24007,
-        image: "https://linnote.com/wp-content/uploads/2024/03/zhongli-musen-brunch-8.webp",
-        liked: false
-      },
-      {
-        id: 2,
-        name: "Mint Pasta",
-        type: "義式料理",
-        lat: 24.95734,
-        lng: 121.23624,
-        image: "https://weiyu-life.com/wp-content/uploads/mint-21.jpg",
-        liked: false
-      },
-      {
-        id: 3,
-        name: "美焦咖啡",
-        type: "咖啡廳",
-        lat: 24.95583,
-        lng: 121.24129,
-        image: "https://www.masterpon.com/wp-content/uploads/meichiao1.jpg",
-        liked: false
-      }
-    ]
+  let stores = []
+  let userLocation = null
 
-    let userLocation = null
+  function getDistance(lat1, lng1, lat2, lng2) {
+    const R = 6371000
+    const toRad = d => d * Math.PI / 180
+    const dLat = toRad(lat2 - lat1)
+    const dLng = toRad(lng2 - lng1)
+    const a =
+      Math.sin(dLat/2)**2 +
+      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+      Math.sin(dLng/2)**2
+    return Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)))
+  }
 
-    function getDistance(lat1, lng1, lat2, lng2) {
-      const R = 6371000
-      const toRad = d => d * Math.PI / 180
-      const dLat = toRad(lat2 - lat1)
-      const dLng = toRad(lng2 - lng1)
-      const a =
-        Math.sin(dLat/2)**2 +
-        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-        Math.sin(dLng/2)**2
-      return Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)))
-    }
+  function render() {
+    const keyword = document.getElementById("search").value
+    const container = document.getElementById("cards")
+    container.innerHTML = ""
 
-    function render() {
-      const keyword = document.getElementById("search").value
-      const container = document.getElementById("cards")
-      container.innerHTML = ""
+    stores
+      .filter(s => s.name.includes(keyword) || (s.type && s.type.includes(keyword)))
+      .sort((a,b) => (b.liked ? 1 : 0) - (a.liked ? 1 : 0))
+      .forEach(store => {
+        const card = document.createElement("div")
+        card.className = "card"
 
-      stores
-        .filter(s => s.name.includes(keyword) || s.type.includes(keyword))
-        .sort((a,b) => b.liked - a.liked)
-        .forEach(store => {
-          const card = document.createElement("div")
-          card.className = "card"
+        card.onclick = () => {
+          window.location.href = `detail.html?id=${store.id}`
+        }
 
-          card.onclick = () => {
-            window.location.href = `detail.html?id=${store.id}`
-          }
+        card.innerHTML = `
+          <div class="heart">${store.liked ? "❤️" : "🤍"}</div>
+          <img src="${store.image || 'https://via.placeholder.com/220x150'}" alt="${store.name}">
+          <div class="card-info">
+            <h3>${store.name}</h3>
+            ${store.phone ? `<p>📞 ${store.phone}</p>` : ""}
+            ${store.address ? `<p>📍 ${store.address}</p>` : ""}
+            ${store.rating ? `<p>⭐ ${store.rating} (${store.user_ratings_total || 0}人評分)</p>` : ""}
+            ${store.price_level ? `<p>💲 ${"$".repeat(store.price_level)}</p>` : ""}
+            ${store.opening_now !== undefined ? `<p>營業中: ${store.opening_now ? "是" : "否"}</p>` : ""}
+            ${store.distance ? `<p>距離: ${store.distance} 公尺</p>` : ""}
+          </div>
+        `
 
+        card.querySelector(".heart").onclick = e => {
+          e.stopPropagation()
+          store.liked = !store.liked
+          render()
+        }
 
-          card.innerHTML = `
-            <div class="heart">${store.liked ? "❤️" : "🤍"}</div>
-            <img src="${store.image}">
-            <div class="card-info">
-              <h3>${store.name}</h3>
-              <p>${store.type}</p>
-              ${store.distance ? `<p>📍 ${store.distance} 公尺</p>` : ""}
-            </div>
-          `
-
-          card.querySelector(".heart").onclick = e => {
-            e.stopPropagation()
-            store.liked = !store.liked
-            render()
-          }
-
-          container.appendChild(card)
-        })
-    }
-
-    navigator.geolocation.getCurrentPosition(pos => {
-      userLocation = {
-        lat: pos.coords.latitude,
-        lng: pos.coords.longitude
-      }
-
-      stores.forEach(s => {
-        s.distance = getDistance(
-          userLocation.lat,
-          userLocation.lng,
-          s.lat,
-          s.lng
-        )
+        container.appendChild(card)
       })
+  }
 
-      render()
+  // 抓後端資料
+  fetch("http://localhost:3000/stores")
+    .then(res => res.json())
+    .then(data => {
+      stores = data.map(s => ({ ...s, liked: false }))
+
+      navigator.geolocation.getCurrentPosition(pos => {
+        userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude }
+        stores.forEach(s => {
+          s.distance = getDistance(userLocation.lat, userLocation.lng, s.lat, s.lng)
+        })
+        render()
+      }, () => {
+        // 拒絕定位也渲染
+        render()
+      })
     })
+    .catch(err => console.error("抓資料失敗", err))
 
-    document.getElementById("search").addEventListener("input", render)
-  </script>
-  -->
+  document.getElementById("search").addEventListener("input", render)
+</script>
+
 </body>
 </html>
