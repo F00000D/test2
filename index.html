@@ -34,13 +34,15 @@
   <div id="cards" class="card-container"></div>
 
   <!-- AI 懸浮聊天 -->
-  <div id="aiChat">
-    <div id="aiOutput"></div>
-    <div id="aiInputContainer">
-      <input id="aiInput" placeholder="問我附近餐廳..." />
-      <button id="aiSend">送出</button>
+  <div id="ai-widget">
+    <div id="ai-button">🤖</div>
+    <div id="ai-chat">
+      <div id="ai-output"></div>
+      <input id="ai-input" type="text" placeholder="問我關於餐廳的問題..." />
+      <button id="ai-send">送出</button>
     </div>
   </div>
+
 
   <script>
     let stores = []
