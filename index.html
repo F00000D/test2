@@ -5,67 +5,193 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>食在中原</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; text-align: center; }
-    h1 { font-size: 3rem; color: #ff5722; margin-bottom: -10px; }
-    .subtitle { color: #666; margin-bottom: 20px; }
-    .search-input { width: 300px; padding: 12px 20px; border-radius: 50px; border: 1px solid #ccc; font-size: 1rem; }
-    .divider { height: 4px; background: #ccc; margin: 20px 0; }
-    .card-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; padding: 16px; }
-    .card { position: relative; background: #fff; border-radius: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); cursor: pointer; overflow: hidden; }
-    .card img { width: 100%; height: 150px; object-fit: cover; }
-    .card-info { padding: 10px; text-align: left; }
-    .heart { position: absolute; top: 10px; right: 10px; font-size: 20px; cursor: pointer; }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      text-align: center;
+    }
 
-    /* AI 懸浮視窗 */
-    #aiChat { position: fixed; bottom: 20px; right: 20px; width: 300px; max-height: 400px; background: #fff; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); overflow: hidden; display: flex; flex-direction: column; }
-    #aiOutput { flex: 1; padding: 10px; overflow-y: auto; font-size: 0.9rem; text-align: left; }
-    #aiInputContainer { display: flex; border-top: 1px solid #ccc; }
-    #aiInput { flex: 1; padding: 8px; border: none; font-size: 0.9rem; }
-    #aiSend { padding: 8px 12px; border: none; background: #ff5722; color: #fff; cursor: pointer; font-weight: bold; }
+    h1 {
+      font-size: 3rem;
+      color: #ff5722;
+      margin-bottom: -10px;
+    }
+
+    .subtitle {
+      color: #666;
+      margin-bottom: 20px;
+    }
+
+    .search-input {
+      width: 300px;
+      padding: 12px 20px;
+      border-radius: 50px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+
+    .divider {
+      height: 4px;
+      background: #ccc;
+      margin: 20px 0;
+    }
+
+    .card-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px;
+      padding: 16px;
+    }
+
+    .card {
+      position: relative;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      cursor: pointer;
+      overflow: hidden;
+    }
+
+    .card img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+    }
+
+    .card-info {
+      padding: 10px;
+      text-align: left;
+    }
+
+    .heart {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    /* AI 懸浮按鈕 & 聊天框 */
+    #aiBtn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #ff5722;
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      font-size: 28px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    #aiChat {
+      position: fixed;
+      bottom: 90px;
+      right: 20px;
+      width: 300px;
+      max-height: 400px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      padding: 10px;
+      overflow-y: auto;
+      display: none;
+    }
+
+    #aiChat textarea {
+      width: 100%;
+      height: 60px;
+      border-radius: 8px;
+      padding: 8px;
+      margin-bottom: 6px;
+    }
+
+    #aiChat button {
+      padding: 6px 12px;
+      border: none;
+      background-color: #ff5722;
+      color: #fff;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    #aiOutput {
+      text-align: left;
+      margin-top: 8px;
+      font-size: 0.9rem;
+    }
   </style>
 </head>
-<body>
 
+<body>
   <h1>食在中原</h1>
   <p class="subtitle">關於中原附近的美食餐廳</p>
 
   <input id="search" class="search-input" placeholder="搜尋餐廳或類型..." />
+
   <div class="divider"></div>
   <div id="cards" class="card-container"></div>
 
-  <!-- AI 懸浮聊天 -->
+  <!-- AI 懸浮按鈕 -->
+  <button id="aiBtn">🤖</button>
+
   <div id="aiChat">
+    <textarea id="aiInput" placeholder="問我餐廳建議..."></textarea>
+    <button id="aiSend">送出</button>
     <div id="aiOutput"></div>
-    <div id="aiInputContainer">
-      <input id="aiInput" placeholder="問我附近餐廳..." />
-      <button id="aiSend">送出</button>
-    </div>
   </div>
 
   <script>
     let stores = []
     let userLocation = null
-    const priceMap = { 1: "NT$100~200", 2: "NT$200~400", 3: "NT$400~600", 4: "NT$600以上" }
+
+    const priceMap = {
+      1: "NT$100~200",
+      2: "NT$200~400",
+      3: "NT$400~600",
+      4: "NT$600以上"
+    }
 
     function getDistance(lat1, lng1, lat2, lng2) {
-      const R = 6371000, toRad = d => d * Math.PI / 180
-      const dLat = toRad(lat2 - lat1), dLng = toRad(lng2 - lng1)
-      const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLng/2)**2
+      const R = 6371000
+      const toRad = d => d * Math.PI / 180
+      const dLat = toRad(lat2 - lat1)
+      const dLng = toRad(lng2 - lng1)
+      const a =
+        Math.sin(dLat/2)**2 +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+        Math.sin(dLng/2)**2
       return Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)))
     }
 
     function render() {
-      const keyword = document.getElementById("search").value.toLowerCase()
+      const keyword = document.getElementById("search").value
       const container = document.getElementById("cards")
       container.innerHTML = ""
 
       stores
-        .filter(s => !keyword || (s.name && s.name.toLowerCase().includes(keyword)) || (s.type && s.type.toLowerCase().includes(keyword)))
-        .sort((a,b) => (b.liked ? 1 : 0) - (a.liked ? 1 : 0) || (a.distance || 0) - (b.distance || 0))
+        .filter(s => s.name.includes(keyword) || (s.type && s.type.includes(keyword)))
+        .sort((a, b) => {
+          // 先依愛心排序
+          if (b.liked && !a.liked) return 1
+          if (a.liked && !b.liked) return -1
+          // 再依距離排序
+          if (a.distance && b.distance) return a.distance - b.distance
+          if (a.distance) return -1
+          if (b.distance) return 1
+          return 0
+        })
         .forEach(store => {
           const card = document.createElement("div")
           card.className = "card"
-          card.onclick = () => { window.location.href = `detail.html?id=${store.id}` }
+
+          card.onclick = () => {
+            window.location.href = `detail.html?id=${store.id}`
+          }
+
           card.innerHTML = `
             <div class="heart">${store.liked ? "❤️" : "🤍"}</div>
             <img src="${store.image || 'https://via.placeholder.com/220x150'}" alt="${store.name}">
@@ -79,19 +205,28 @@
               ${store.distance ? `<p>距離: ${store.distance} 公尺</p>` : ""}
             </div>
           `
-          card.querySelector(".heart").onclick = e => { e.stopPropagation(); store.liked = !store.liked; render() }
+
+          card.querySelector(".heart").onclick = e => {
+            e.stopPropagation()
+            store.liked = !store.liked
+            render()
+          }
+
           container.appendChild(card)
         })
     }
 
-    // 抓後端資料
+    // 後端抓資料
     fetch("http://localhost:3000/stores")
       .then(res => res.json())
       .then(data => {
         stores = data.map(s => ({ ...s, liked: false }))
+
         navigator.geolocation.getCurrentPosition(pos => {
           userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude }
-          stores.forEach(s => { s.distance = getDistance(userLocation.lat, userLocation.lng, s.lat, s.lng) })
+          stores.forEach(s => {
+            s.distance = getDistance(userLocation.lat, userLocation.lng, s.lat, s.lng)
+          })
           render()
         }, () => { render() })
       })
@@ -99,33 +234,34 @@
 
     document.getElementById("search").addEventListener("input", render)
 
-    // 假設你已經有右下角 AI 懸浮窗的元素
+    // AI 按鈕
+    const aiBtn = document.getElementById("aiBtn")
+    const aiChat = document.getElementById("aiChat")
     const aiInput = document.getElementById("aiInput")
     const aiSend = document.getElementById("aiSend")
     const aiOutput = document.getElementById("aiOutput")
 
-    aiSend.onclick = async () => {
-      const question = aiInput.value.trim()
-      if(!question) return
-
-      aiOutput.innerHTML += `<p>Q: ${question}</p>`
-
-      try {
-        const res = await fetch("http://localhost:3001/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: question })
-        })
-        const data = await res.json()
-        aiOutput.innerHTML += `<p>A: ${data.reply}</p><hr>`
-        aiOutput.scrollTop = aiOutput.scrollHeight
-      } catch(err) {
-        aiOutput.innerHTML += `<p>A: 🤖 發生錯誤，請稍後再試</p><hr>`
-      }
-
-      aiInput.value = ""
+    aiBtn.onclick = () => {
+      aiChat.style.display = aiChat.style.display === "none" ? "block" : "none"
     }
 
+    aiSend.onclick = () => {
+      const question = aiInput.value.trim()
+      if (!question) return
+
+      // 模擬 AI 回答
+      let reply = "🤖 我建議你可以試試：" 
+      const filtered = stores.filter(s => s.name.includes(question) || (s.type && s.type.includes(question)))
+      if (filtered.length) {
+        reply += filtered.map(s => s.name).join(", ")
+      } else {
+        reply += "附近的熱門餐廳都不錯喔！"
+      }
+
+      aiOutput.innerHTML += `<p>Q: ${question}</p><p>A: ${reply}</p><hr>`
+      aiInput.value = ""
+      aiOutput.scrollTop = aiOutput.scrollHeight
+    }
   </script>
 </body>
 </html>
