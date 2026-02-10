@@ -1,50 +1,72 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8">
-  <title>餐廳詳細頁</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>餐廳詳細資訊</title>
   <style>
-    body {
-      font-family: Arial;
-      padding: 20px;
-    }
-    img {
-      width: 100%;
-      max-width: 500px;
-      border-radius: 16px;
-    }
+    body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+    h1 { color: #ff5722; }
+    img { width: 100%; max-width: 500px; height: 300px; object-fit: cover; border-radius: 12px; }
+    .info { margin-top: 20px; }
+    .info p { margin: 6px 0; font-size: 1rem; }
   </style>
 </head>
-
 <body>
-
-  <button onclick="history.back()">← 回上一頁</button>
-
-  <h1 id="name"></h1>
-  <p id="type"></p>
-  <img id="image">
-  <p id="phone"></p>
-    <p id="price"></p>
-    <p id="time"></p>
-    <a id="order" target="_blank">前往點餐</a>
-
+  <h1 id="name">餐廳名稱</h1>
+  <img id="image" src="https://via.placeholder.com/500x300" alt="餐廳圖片" />
+  <div class="info" id="details"></div>
 
   <script>
-  const params = new URLSearchParams(window.location.search)
-  const id = params.get("id")
+    const priceMap = {
+      1: "NT$100~200",
+      2: "NT$200~400",
+      3: "NT$400~600",
+      4: "NT$600以上"
+    }
 
-  fetch(`http://localhost:3000/stores/${id}`)
-    .then(res => res.json())
-    .then(store => {
-      document.getElementById("name").textContent = store.name
-      document.getElementById("type").textContent = store.type
-      document.getElementById("image").src = store.image
-      document.getElementById("phone").textContent = store.phone
-      document.getElementById("price").textContent = store.price
-      document.getElementById("time").textContent = store.time
-      document.getElementById("order").href = store.orderLink
-    })
-</script>
+    // 取得網址參數 id
+    const params = new URLSearchParams(window.location.search)
+    const id = params.get("id")
 
+    if (!id) {
+      document.getElementById("details").innerHTML = "<p>找不到餐廳ID</p>"
+    } else {
+      fetch(`http://localhost:3000/stores/${id}`)
+        .then(res => res.json())
+        .then(store => {
+          if (!store) {
+            document.getElementById("details").innerHTML = "<p>找不到餐廳資料</p>"
+            return
+          }
+
+          document.getElementById("name").textContent = store.name || "無名稱"
+          document.getElementById("image").src = store.image || "https://via.placeholder.com/500x300"
+          document.getElementById("image").alt = store.name || "餐廳圖片"
+
+          const html = `
+            ${store.address ? `<p>📍 地址: ${store.address}</p>` : ""}
+            ${store.phone ? `<p>📞 電話: ${store.phone}</p>` : ""}
+            ${store.rating ? `<p>⭐ 評分: ${store.rating} (${store.user_ratings_total || 0}人評分)</p>` : ""}
+            ${store.price_level ? `<p>💲 價位: ${priceMap[store.price_level]}</p>` : ""}
+            ${store.opening_now !== undefined ? `<p>營業中: ${store.opening_now ? "是" : "否"}</p>` : ""}
+            ${store.business_status ? `<p>商家狀態: ${store.business_status}</p>` : ""}
+            <p>外送: ${store.delivery ? "✅ 可" : "❌ 不可"}</p>
+            <p>內用: ${store.dine_in ? "✅ 可" : "❌ 不可"}</p>
+            <p>外帶: ${store.takeout ? "✅ 可" : "❌ 不可"}</p>
+            <p>可預約: ${store.reservable ? "✅ 可" : "❌ 不可"}</p>
+            <p>無障礙入口: ${store.wheelchair_accessible_entrance ? "✅ 有" : "❌ 無"}</p>
+            <p>資料抓取時間: ${store.details_fetched_at || "無"}</p>
+            ${store.google_maps_url ? `<p>🌐 <a href="${store.google_maps_url}" target="_blank">Google 地圖連結</a></p>` : ""}
+            ${store.website ? `<p>🔗 <a href="${store.website}" target="_blank">官網/訂位連結</a></p>` : ""}
+          `
+          document.getElementById("details").innerHTML = html
+        })
+        .catch(err => {
+          console.error("抓資料失敗", err)
+          document.getElementById("details").innerHTML = "<p>抓取資料失敗</p>"
+        })
+    }
+  </script>
 </body>
 </html>
