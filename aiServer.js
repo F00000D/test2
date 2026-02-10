@@ -1,43 +1,37 @@
-const express = require("express")
-const cors = require("cors")
-const { Configuration, OpenAIApi } = require("openai")
+const aiButton = document.getElementById("ai-button")
+const aiChat = document.getElementById("ai-chat")
+const aiInput = document.getElementById("ai-input")
+const aiSend = document.getElementById("ai-send")
+const aiOutput = document.getElementById("ai-output")
 
-require("dotenv").config() // 如果你把 API key 放在 .env
+// 點擊圖標展開/收起
+aiButton.onclick = () => {
+  aiChat.style.display = aiChat.style.display === "flex" ? "none" : "flex"
+}
 
-const app = express()
-const PORT = 3001
-
-app.use(cors())
-app.use(express.json())
-
-const configuration = new Configuration({
-  apiKey: process.env.OPENAI_API_KEY, // 你的 OpenAI API Key
-})
-const openai = new OpenAIApi(configuration)
-
-// POST /chat
-app.post("/chat", async (req, res) => {
-  const { message } = req.body
-  if (!message) return res.status(400).json({ error: "No message" })
+// 發送訊息到 OpenAI 後端
+aiSend.onclick = async () => {
+  const question = aiInput.value.trim()
+  if (!question) return
+  aiOutput.innerHTML += `<p><b>Q:</b> ${question}</p>`
 
   try {
-    const completion = await openai.createChatCompletion({
-      model: "gpt-3.5-turbo",
-      messages: [
-        { role: "system", content: "你是一個關於中原附近美食的餐廳助理。" },
-        { role: "user", content: message }
-      ],
-      max_tokens: 200
+    const res = await fetch("http://localhost:3001/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: question })
     })
-
-    const reply = completion.data.choices[0].message.content
-    res.json({ reply })
-  } catch (err) {
-    console.error(err)
-    res.status(500).json({ reply: "AI 發生錯誤，請稍後再試。" })
+    const data = await res.json()
+    aiOutput.innerHTML += `<p><b>A:</b> ${data.reply}</p><hr>`
+    aiOutput.scrollTop = aiOutput.scrollHeight
+  } catch(err) {
+    aiOutput.innerHTML += `<p><b>A:</b> ? 發生錯誤</p><hr>`
   }
-})
 
-app.listen(PORT, () => {
-  console.log(`AI server 啟動：http://localhost:${PORT}`)
+  aiInput.value = ""
+}
+
+// 按 Enter 也可以送出
+aiInput.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") aiSend.click()
 })
